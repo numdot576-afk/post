@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>Post</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#0f1115;--card:#181b22;--line:#262a33;--text:#e9ecf1;--muted:#8b93a1;--accent:#2dd4bf;--ink:#06201c;--warm:#fbbf24;--danger:#f87171}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 28px);max-width:480px;margin:0 auto}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+header{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:20px;margin:0;font-weight:650}
+.status{font-size:13px;color:var(--muted)}
+.ring-wrap{position:relative;width:min(76vw,290px);aspect-ratio:1;margin:14px auto 6px}
+.ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .6s,stroke .3s}
+.ring-fg.over{stroke:var(--warm)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.time{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;margin:4px 0}
+.sub{font-size:14px;color:var(--muted)}
+.stage{text-align:center;font-size:14px;color:var(--muted);margin:2px 0 14px;min-height:20px}
+.stage b{color:var(--accent);font-weight:600}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+.chip{padding:8px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px}
+.chip.on{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:650}
+.times{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left}
+.tbox small{display:block;color:var(--muted);font-size:12px;margin-bottom:2px}
+.tbox span{font-size:15px;font-weight:600}
+.tbox .edit{color:var(--accent);font-size:12px;font-weight:500;margin-left:4px}
+.btn{display:block;width:100%;padding:16px;border-radius:16px;font-size:17px;font-weight:650;background:var(--accent);color:var(--ink)}
+.btn.stop{background:var(--warm);color:#2a1d00}
+.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);font-weight:500;font-size:15px;padding:12px}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line);font-weight:500;font-size:15px;padding:12px}
+section{margin-top:28px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+h2{font-size:13px;margin:0;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.small-btn{color:var(--accent);font-size:14px;padding:4px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:21px;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:12px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:140px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 28px}
+.bar{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.bar i{display:block;width:100%;border-radius:6px 6px 3px 3px;background:#3a404c;min-height:3px}
+.bar i.hit{background:var(--accent)}
+.bar i.live{background:repeating-linear-gradient(45deg,var(--accent) 0 6px,#1f9e8f 6px 12px)}
+.bar s{text-decoration:none;font-size:10px;color:var(--muted);margin-bottom:3px;font-variant-numeric:tabular-nums}
+.bar em{position:absolute;bottom:-21px;font-style:normal;font-size:11px;color:var(--muted)}
+.bar em.today{color:var(--text);font-weight:600}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;width:100%;text-align:left}
+.item .d{font-size:15px;font-weight:600}
+.item .w{font-size:12px;color:var(--muted);margin-top:2px}
+.item .h{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted)}
+.item .h.hit{color:var(--accent)}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:18px;background:var(--card);border:1px dashed var(--line);border-radius:14px}
+.more{margin-top:8px}
+.foot{display:flex;gap:10px}
+.note{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
+dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:18px;width:min(92vw,400px)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{margin:0 0 14px;font-size:18px}
+label.f{display:block;font-size:13px;color:var(--muted);margin-bottom:12px}
+label.f input{display:block;width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;color-scheme:dark}
+.err{color:var(--danger);font-size:13px;min-height:18px;margin-bottom:6px}
+.drow{display:flex;gap:8px}
+.drow .btn{padding:12px;font-size:15px}
+#fDel{margin-top:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><h1>Post</h1><span class="status" id="status"></span></header>
+
+<div class="ring-wrap">
+  <svg viewBox="0 0 200 200" aria-hidden="true">
+    <circle cx="100" cy="100" r="88" fill="none" stroke="#262a33" stroke-width="14"/>
+    <circle id="ring" class="ring-fg" cx="100" cy="100" r="88" fill="none" stroke-width="14"/>
+  </svg>
+  <div class="center">
+    <div class="label" id="lbl"></div>
+    <div class="time" id="time">0:00:00</div>
+    <div class="sub" id="sub"></div>
+  </div>
+</div>
+<div class="stage" id="stage"></div>
+
+<div class="chips" id="chips"></div>
+
+<div class="times">
+  <button class="tbox" id="boxA"><small id="aL"></small><span id="aT">—</span></button>
+  <div class="tbox"><small id="bL"></small><span id="bT">—</span></div>
+</div>
+
+<button class="btn" id="main">Počni post</button>
+
+<section>
+  <div class="sh"><h2>Zadnjih 7 dana</h2></div>
+  <div class="bars" id="bars"></div>
+</section>
+
+<section>
+  <div class="sh"><h2>Statistika</h2></div>
+  <div class="stats" id="stats"></div>
+</section>
+
+<section>
+  <div class="sh"><h2>Historija</h2><button class="small-btn" id="addPast">+ Dodaj raniji post</button></div>
+  <div class="list" id="list"></div>
+  <button class="btn ghost more" id="more" hidden>Prikaži više</button>
+</section>
+
+<section>
+  <div class="sh"><h2>Sigurnosna kopija</h2></div>
+  <div class="foot">
+    <button class="btn ghost" id="exp">Izvezi</button>
+    <button class="btn ghost" id="impBtn">Uvezi</button>
+    <input type="file" id="imp" accept="application/json,.json" hidden>
+  </div>
+  <p class="note">Tvoji podaci ostaju samo na ovom telefonu. Povremeno izvezi kopiju da ih ne izgubiš ako obrišeš podatke Chromea.</p>
+</section>
+
+<dialog id="dlg">
+  <form id="form">
+    <h3 id="dTitle"></h3>
+    <label class="f">Početak<input type="datetime-local" id="fStart" required></label>
+    <label class="f" id="fEndL">Kraj<input type="datetime-local" id="fEnd"></label>
+    <label class="f">Cilj (sati)<input type="number" id="fGoal" min="1" max="240" step="0.5" required></label>
+    <div class="err" id="fErr"></div>
+    <div class="drow">
+      <button type="button" class="btn ghost" id="fCancel">Odustani</button>
+      <button type="submit" class="btn">Sačuvaj</button>
+    </div>
+    <button type="button" class="btn danger" id="fDel">Obriši</button>
+  </form>
+</dialog>
+
+<script>
+const KEY = 'fasting-tracker-v1';
+const H = 3600000, DAY = 864e5, C = 2 * Math.PI * 88;
+const GOALS = [12, 14, 16, 18, 20, 24, 36];
+const STAGES = [[0,'Probava'],[4,'Šećer u krvi opada'],[8,'Šećer u krvi se smiruje'],[12,'Sagorijevanje masti'],[18,'Ketoza'],[24,'Duboka ketoza'],[48,'Produženi post']];
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+
+let S = load();
+let showAll = false;
+let editing = null; // 'active' | 'new' | history id
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.history)) return s;
+  } catch (e) {}
+  return { goal: 16, active: null, history: [] };
+}
+function save() {
+  S.history.sort((a, b) => b.end - a.end);
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+function hms(ms) { const t = Math.floor(Math.max(0, ms) / 1000); return Math.floor(t / 3600) + ':' + pad(Math.floor(t / 60) % 60) + ':' + pad(t % 60); }
+function hm(ms) { const m = Math.round(Math.max(0, ms) / 60000); return Math.floor(m / 60) + 'h ' + pad(m % 60) + 'm'; }
+const hrs = ms => (ms / H).toFixed(1).replace(/\.0$/, '');
+const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
+const DANI = ['ned', 'pon', 'uto', 'sri', 'čet', 'pet', 'sub'];
+const MJ = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+const fmtT = ms => { const d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+function fmtDay(ms) {
+  const now = Date.now();
+  if (sameDay(ms, now)) return 'Danas';
+  if (sameDay(ms, now - DAY)) return 'Jučer';
+  if (sameDay(ms, now + DAY)) return 'Sutra';
+  const d = new Date(ms);
+  return DANI[d.getDay()] + ', ' + d.getDate() + '. ' + MJ[d.getMonth()];
+}
+const fmtDT = ms => fmtDay(ms) + ', ' + fmtT(ms);
+function toInput(ms) { const d = new Date(ms); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+const fromInput = v => v ? new Date(v).getTime() : NaN;
+const dur = f => f.end - f.start;
+const hit = f => dur(f) >= f.goal * H;
+
+/* ---------- live timer (every second) ---------- */
+function tick() {
+  const now = Date.now(), a = S.active, ring = $('ring');
+  ring.style.strokeDasharray = C;
+  if (a) {
+    const el = now - a.start, goal = a.goal * H, done = el >= goal;
+    $('lbl').textContent = done ? 'Cilj postignut' : 'Post u toku';
+    $('time').textContent = hms(el);
+    $('sub').textContent = done ? '+' + hm(el - goal) + ' preko cilja' : 'još ' + hm(goal - el);
+    ring.style.strokeDashoffset = C * (1 - Math.min(1, el / goal));
+    ring.classList.toggle('over', done);
+    let st = STAGES[0][1];
+    for (const [h, name] of STAGES) if (el >= h * H) st = name;
+    $('stage').innerHTML = '<b>' + st + '</b> · ' + Math.round(Math.min(1, el / goal) * 100) + '%';
+    $('status').textContent = 'Cilj: ' + a.goal + 'h';
+  } else {
+    const last = S.history[0];
+    $('lbl').textContent = last ? 'Vrijeme za jelo' : 'Ne postiš';
+    $('time').textContent = last ? hms(now - last.end) : '0:00:00';
+    $('sub').textContent = 'Sljedeći cilj: ' + S.goal + 'h';
+    ring.style.strokeDashoffset = C;
+    ring.classList.remove('over');
+    $('stage').textContent = last ? 'Vrijeme od kraja zadnjeg posta' : 'Izaberi cilj i pritisni Počni post';
+    $('status').textContent = '';
+  }
+}
+
+/* ---------- everything else (on change) ---------- */
+function render() {
+  const a = S.active, curGoal = a ? a.goal : S.goal;
+
+  // goal chips
+  const chips = GOALS.map(g => `<button class="chip${g === curGoal ? ' on' : ''}" data-g="${g}">${g}h</button>`);
+  const custom = !GOALS.includes(curGoal);
+  chips.push(`<button class="chip${custom ? ' on' : ''}" data-g="custom">${custom ? curGoal + 'h' : 'Drugo'}</button>`);
+  $('chips').innerHTML = chips.join('');
+
+  // the two info boxes + main button
+  const last = S.history[0];
+  if (a) {
+    $('aL').textContent = 'Početak';
+    $('aT').innerHTML = fmtDT(a.start) + '<span class="edit">uredi</span>';
+    $('bL').textContent = 'Cilj u';
+    $('bT').textContent = fmtDT(a.start + a.goal * H);
+    $('main').textContent = 'Završi post';
+    $('main').className = 'btn stop';
+  } else {
+    $('aL').textContent = 'Zadnji post';
+    $('aT').innerHTML = last ? hm(dur(last)) + '<span class="edit">uredi</span>' : '—';
+    $('bL').textContent = 'Završen';
+    $('bT').textContent = last ? fmtDT(last.end) : '—';
+    $('main').textContent = 'Počni post';
+    $('main').className = 'btn';
+  }
+
+  renderBars();
+  renderStats();
+  renderList();
+  tick();
+}
+
+function renderBars() {
+  const now = Date.now(), days = [];
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  for (let i = 6; i >= 0; i--) {
+    const d0 = new Date(today); d0.setDate(d0.getDate() - i);
+    const d1 = new Date(d0); d1.setDate(d1.getDate() + 1);
+    let best = null;
+    for (const f of S.history) if (f.end >= +d0 && f.end < +d1 && (!best || dur(f) > dur(best))) best = f;
+    let live = false, val = best ? dur(best) : 0, isHit = best ? hit(best) : false;
+    if (i === 0 && S.active && now - S.active.start > val) { val = now - S.active.start; live = true; isHit = val >= S.active.goal * H; }
+    days.push({ d0, val, isHit, live, today: i === 0 });
+  }
+  const max = Math.max(S.goal * H, ...days.map(d => d.val), H);
+  $('bars').innerHTML = days.map(d =>
+    `<div class="bar">${d.val ? `<s>${hrs(d.val)}</s>` : ''}<i class="${d.live ? 'live' : d.isHit ? 'hit' : ''}" style="height:${d.val ? Math.max(3, d.val / max * 100) : 0}%"></i>` +
+    `<em class="${d.today ? 'today' : ''}">${DANI[d.d0.getDay()]}</em></div>`
+  ).join('');
+}
+
+function renderStats() {
+  const h = S.history, n = h.length;
+  const avg = n ? h.reduce((s, f) => s + dur(f), 0) / n : 0;
+  const longest = n ? Math.max(...h.map(dur)) : 0;
+  const hits = h.filter(hit).length;
+
+  // streak: consecutive days (ending today or yesterday) with a fast that hit its goal
+  const hitDays = new Set(h.filter(hit).map(f => new Date(f.end).toDateString()));
+  const d = new Date(); let streak = 0;
+  if (!hitDays.has(d.toDateString())) d.setDate(d.getDate() - 1);
+  while (hitDays.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+
+  $('stats').innerHTML = [
+    [streak + (streak % 10 === 1 && streak % 100 !== 11 ? ' dan' : ' dana'), 'Trenutni niz'],
+    [n ? hm(avg) : '—', 'Prosječan post'],
+    [n ? hm(longest) : '—', 'Najduži post'],
+    [n ? hits + ' / ' + n : '—', 'Postignuti ciljevi'],
+  ].map(([v, l]) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`).join('');
+}
+
+function renderList() {
+  const h = S.history;
+  if (!h.length) { $('list').innerHTML = '<div class="empty">Još nema postova. Završeni postovi će se pojaviti ovdje.</div>'; $('more').hidden = true; return; }
+  const shown = showAll ? h : h.slice(0, 10);
+  $('list').innerHTML = shown.map(f =>
+    `<button class="item" data-id="${f.id}"><div><div class="d">${fmtDay(f.end)}</div>` +
+    `<div class="w">${fmtT(f.start)} → ${fmtT(f.end)} · cilj ${f.goal}h</div></div>` +
+    `<div class="h${hit(f) ? ' hit' : ''}">${hm(dur(f))}</div></button>`
+  ).join('');
+  $('more').hidden = showAll || h.length <= 10;
+}
+
+/* ---------- actions ---------- */
+$('main').onclick = () => {
+  const now = Date.now();
+  if (!S.active) {
+    S.active = { start: now, goal: S.goal };
+  } else {
+    const el = now - S.active.start;
+    if (el < 60000) { S.active = null; }
+    else {
+      if (!confirm('Završiti post na ' + hm(el) + '?')) return;
+      S.history.push({ id: now.toString(36), start: S.active.start, end: now, goal: S.active.goal });
+      S.active = null;
+    }
+  }
+  save(); render();
+};
+
+$('chips').onclick = e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  let g = b.dataset.g;
+  if (g === 'custom') {
+    const v = prompt('Cilj u satima:', S.active ? S.active.goal : S.goal);
+    if (v === null) return;
+    g = parseFloat(v);
+    if (!(g >= 1 && g <= 240)) { alert('Unesi broj između 1 i 240.'); return; }
+  } else g = +g;
+  S.goal = g;
+  if (S.active) S.active.goal = g;
+  save(); render();
+};
+
+$('boxA').onclick = () => {
+  if (S.active) openDlg('active');
+  else if (S.history[0]) openDlg(S.history[0].id);
+};
+$('list').onclick = e => { const b = e.target.closest('.item'); if (b) openDlg(b.dataset.id); };
+$('addPast').onclick = () => openDlg('new');
+$('more').onclick = () => { showAll = true; renderList(); };
+
+/* ---------- edit dialog ---------- */
+function openDlg(what) {
+  editing = what;
+  const now = Date.now();
+  let f;
+  if (what === 'active') f = { start: S.active.start, goal: S.active.goal };
+  else if (what === 'new') f = { start: now - S.goal * H, end: now, goal: S.goal };
+  else f = S.history.find(x => x.id === what);
+  if (!f) return;
+  $('dTitle').textContent = what === 'active' ? 'Trenutni post' : what === 'new' ? 'Dodaj raniji post' : 'Uredi post';
+  $('fStart').value = toInput(f.start);
+  $('fEndL').hidden = what === 'active';
+  $('fEnd').required = what !== 'active';
+  $('fEnd').value = f.end ? toInput(f.end) : '';
+  $('fGoal').value = f.goal;
+  $('fDel').hidden = what === 'new';
+  $('fDel').textContent = what === 'active' ? 'Odbaci ovaj post' : 'Obriši';
+  $('fErr').textContent = '';
+  $('dlg').showModal();
+}
+$('fCancel').onclick = () => $('dlg').close();
+$('form').onsubmit = e => {
+  e.preventDefault();
+  const now = Date.now() + 60000;
+  const start = fromInput($('fStart').value), end = fromInput($('fEnd').value), goal = parseFloat($('fGoal').value);
+  const err = m => { $('fErr').textContent = m; };
+  if (isNaN(start)) return err('Izaberi vrijeme početka.');
+  if (start > now) return err('Početak ne može biti u budućnosti.');
+  if (!(goal >= 1 && goal <= 240)) return err('Cilj mora biti od 1 do 240 sati.');
+  if (editing === 'active') {
+    S.active.start = start; S.active.goal = goal;
+  } else {
+    if (isNaN(end)) return err('Izaberi vrijeme kraja.');
+    if (end <= start) return err('Kraj mora biti nakon početka.');
+    if (end > now) return err('Kraj ne može biti u budućnosti.');
+    if (editing === 'new') S.history.push({ id: Date.now().toString(36), start, end, goal });
+    else Object.assign(S.history.find(x => x.id === editing), { start, end, goal });
+  }
+  save(); $('dlg').close(); render();
+};
+$('fDel').onclick = () => {
+  if (editing === 'active') {
+    if (!confirm('Odbaciti trenutni post? Neće biti sačuvan.')) return;
+    S.active = null;
+  } else {
+    if (!confirm('Obrisati ovaj post?')) return;
+    S.history = S.history.filter(x => x.id !== editing);
+  }
+  save(); $('dlg').close(); render();
+};
+
+/* ---------- backup ---------- */
+$('exp').onclick = () => {
+  const blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'post-kopija-' + toInput(Date.now()).slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('impBtn').onclick = () => $('imp').click();
+$('imp').onchange = async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  try {
+    const d = JSON.parse(await file.text());
+    if (!d || !Array.isArray(d.history) || !d.history.every(f => typeof f.start === 'number' && typeof f.end === 'number' && f.goal)) throw 0;
+    if (!confirm('Zamijeniti trenutne podatke ovom kopijom (postova: ' + d.history.length + ')?')) return;
+    S = { goal: d.goal || 16, active: d.active || null, history: d.history };
+    S.history.forEach((f, i) => { if (!f.id) f.id = (f.end + i).toString(36); });
+    save(); render();
+  } catch (_) { alert('Ta datoteka nije ispravna kopija.'); }
+};
+
+/* ---------- start ---------- */
+save(); render();
+setInterval(tick, 1000);
+setInterval(renderBars, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { S = load(); render(); } });
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
